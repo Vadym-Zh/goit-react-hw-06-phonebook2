@@ -1,58 +1,43 @@
-import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
+import { setDeleteContacts } from 'redux/contactsSlicer/contactsSlice';
+import { nanoid } from 'nanoid';
 
-import {
-  ListBtn,
-  ContactsTable,
-  ContactsTableHead,
-  ContactsTableRow,
-  ContactsTableCeil,
-  ContactsFlexCeil,
-} from './ContactList.styled';
+import css from './ContactList.module.css';
 
-export const ContactList = ({ contacts, onRemove }) => {
+export const ContactList = () => {
+  const contacts = useSelector(state => state.contacts);
+  const filters = useSelector(state => state.filters);
+  const dispatch = useDispatch();
+
+  function onDelete(index) {
+    dispatch(setDeleteContacts(index));
+  }
+
+  function findContact() {
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filters.toLowerCase())
+    );
+  }
+
+  const contactsData = findContact();
+
   return (
-    <>
-      <ContactsTable>
-        <thead>
-          <tr>
-            <ContactsTableHead>Name</ContactsTableHead>
-            <ContactsTableHead>Phone number</ContactsTableHead>
-            <ContactsTableHead>Contacts ({contacts.length})</ContactsTableHead>
-          </tr>
-        </thead>
+    <ul className={css.listContainer}>
+      {contactsData.map(({ name, number }, index) => (
+        <li key={nanoid()} className={css.listItem}>
+          <span className={css.contactName}> {name} :</span>
+          <span className={css.contactNumber}>{number} </span>
 
-        <tbody>
-          {contacts.map(({ id, name, number }) => {
-            return (
-              <ContactsTableRow key={id}>
-                <ContactsFlexCeil>{name}</ContactsFlexCeil>
-                <ContactsTableCeil>{number}</ContactsTableCeil>
-                <ContactsTableCeil>
-                  <ListBtn
-                    type="button"
-                    onClick={() => {
-                      onRemove(id);
-                    }}
-                  >
-                    Delet
-                  </ListBtn>
-                </ContactsTableCeil>
-              </ContactsTableRow>
-            );
-          })}
-        </tbody>
-      </ContactsTable>
-    </>
+          <button
+            type="button"
+            onClick={() => onDelete(index)}
+            key={index}
+            className={css.deleteButton}
+          >
+            Delete
+          </button>
+        </li>
+      ))}
+    </ul>
   );
-};
-
-ContactList.propTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  onRemove: PropTypes.func.isRequired,
 };

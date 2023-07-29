@@ -1,22 +1,34 @@
+import { useDispatch, useSelector } from 'react-redux';
+import { setStatusFilter } from 'redux/filterSlicer/filterSlice';
 import PropTypes from 'prop-types';
 
-import { FilterContainer, FilterLabel, FilterInput } from './Filter.styled';
+import css from './Filter.module.css';
 
-export const Filter = ({ value, onChange }) => {
+export function Filter() {
+  const filters = useSelector(state => state.filters);
+
+  const dispatch = useDispatch();
+
+  function hendleFilter(event) {
+    const { value } = event.target;
+    dispatch(setStatusFilter(value));
+  }
+
   return (
-    <FilterContainer>
-      <FilterInput
+    <label className={css.filterLabel}>
+      Find contacts by name
+      <br />
+      <input
         type="text"
-        placeholder=" "
-        value={value}
-        onChange={onChange}
-      ></FilterInput>
-      <FilterLabel>Find contacts by name</FilterLabel>
-    </FilterContainer>
+        name="filter"
+        value={filters}
+        onChange={hendleFilter}
+        className={css.filterInput}
+      />
+    </label>
   );
-};
+}
 
-Filter.propTypes = {
+Filter.prototype = {
   value: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
 };
